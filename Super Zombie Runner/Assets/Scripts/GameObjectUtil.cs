@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class GameObjectUtil {
 
-    private static Dictionary<RecycleGameObject, ObjectPool> pools = new Dictionary<RecycleGameObject, ObjectPool>;
+    private static Dictionary<RecycleGameObject, ObjectPool> pools = new Dictionary<RecycleGameObject, ObjectPool>();
 
     public static GameObject Instantiate(GameObject prefab, Vector3 pos)
     {
