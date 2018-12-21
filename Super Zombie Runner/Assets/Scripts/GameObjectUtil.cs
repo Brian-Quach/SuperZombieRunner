@@ -15,6 +15,14 @@ public class GameObjectUtil {
 
     public static void Destroy(GameObject gameObject)
     {
-        GameObject.Destroy(gameObject);
+        var recycleGameObject = gameObject.GetComponent<RecycleGameObject>();
+
+        if (recycleGameObject != null)
+        {
+            recycleGameObject.Shutdown();
+        } else
+        {
+            GameObject.Destroy(gameObject);
+        }
     }
 }
