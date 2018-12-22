@@ -1,15 +1,24 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
+using System;
 using System.Collections;
 
 public class GameManager : MonoBehaviour {
 
     public GameObject playerPrefab;
+    public Text continueText;
+    public Text scoreText;
 
+    private float timeElapsed = 0f;
+    private float bestTime = 0f;
+    private float blinkTime = 0f;
+    private bool blink;
     private bool gameStarted;
     private TimeManager timeManager;
     private GameObject player;
     private GameObject floor;
     private Spawner spawner;
+    private bool newHighScore;
 
     void Awake()
     {
@@ -29,7 +38,11 @@ public class GameManager : MonoBehaviour {
         spawner.active = false;
 
         Time.timeScale = 0;
-	}
+
+        continueText.text = "Press any button to start";
+
+        bestTime = PlayerPrefs.GetFloat("bestTime");
+    }
 	
 	void Update () {
 	    if (!gameStarted && Time.timeScale == 0)
@@ -39,6 +52,25 @@ public class GameManager : MonoBehaviour {
                 timeManager.ManipulateTime(1, 1f);
                 ResetGame();
             }
+        }
+
+        if (!gameStarted)
+        {
+            blinkTime++;
+            if(blinkTime % 40 == 0)
+            {
+                blink = !blink;
+            }
+
+            continueText.canvasRenderer.SetAlpha(blink ? 0 : 1);
+
+            var textColor = newHighScore ? "#FF0" : "#FFF";
+
+            scoreText.text = "TIME: " + formatTime(timeElapsed) + "\n<color=" + textColor +">BEST: " + formatTime(bestTime) + "</color>";
+        } else
+        {
+            timeElapsed += Time.deltaTime;
+            scoreText.text = "TIME: " + formatTime(timeElapsed);
         }
 	}
 
@@ -52,6 +84,15 @@ public class GameManager : MonoBehaviour {
 
         player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         timeManager.ManipulateTime(0, 5.5f);
+
+        continueText.text = "Press any button to restart";
+
+        if(timeElapsed > bestTime)
+        {
+            bestTime = timeElapsed;
+            PlayerPrefs.SetFloat("bestTime", bestTime);
+            newHighScore = true;
+        }
     }
 
     void ResetGame()
@@ -63,5 +104,15 @@ public class GameManager : MonoBehaviour {
 
         var playerDestroyScript = player.GetComponent<DestroyOffscreen>();
         playerDestroyScript.DestroyCallback += OnPlayerKilled;
+
+        continueText.canvasRenderer.SetAlpha(0);
+
+        timeElapsed = 0;
+    }
+
+    string formatTime(float ms)
+    {
+        TimeSpan t = TimeSpan.FromSeconds(ms);
+        return string.Format("{0:D2}:{1:D2}:{2:D3}", t.Minutes, t.Seconds, t.Milliseconds);
     }
 }

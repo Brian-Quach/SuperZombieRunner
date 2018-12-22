@@ -14,7 +14,7 @@ public class TimeManager : MonoBehaviour {
     }
 
     IEnumerator FadeTo(float value, float time)
-    {
+    {   
         for (float t = 0f; t < 1; t += Time.deltaTime / time)
         {
             Time.timeScale = Mathf.Lerp(Time.timeScale, value, t);
@@ -22,7 +22,7 @@ public class TimeManager : MonoBehaviour {
             if(Mathf.Abs(value - Time.timeScale) < .01f)
             {
                 Time.timeScale = value;
-                return false;
+                yield break;
             }
 
             yield return null;
